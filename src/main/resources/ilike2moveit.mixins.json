@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "mac.ilike2moveit.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ChickenVariantRendererMixin",
+    "PigVariantRendererMixin",
+    "CrossedArmsItemLayerMixin",
+    "FoxHeldItemLayerMixin",
+    "ModelPartAccessor",
+    "VillagerProfessionLayerMixin",
+    "EmfManagerResetMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
