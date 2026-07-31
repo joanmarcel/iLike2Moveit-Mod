@@ -3,7 +3,28 @@
 All notable changes to this mod are documented here. The same text feeds the GitHub release, the
 Modrinth page and the Discord announcement, so they cannot drift apart.
 
-## v0.1.0 — first public release
+## v0.1.1-beta.2 — the mod sets `asmMaths` for you
+
+**You must delete the previous jar before installing this one.** The mod's internal id changed, so if
+both files sit in `mods/` the game loads them as two separate mods and applies the same patches twice.
+Remove the old `iLike2MoveIt` jar first, then drop this one in.
+
+**New**
+
+- The mod now sets EMF's `asmMaths` option to `false` on its own, in memory. Until now you had to edit
+  `config/entity_model_features.json` by hand, and if you forgot, the villager silently stopped
+  animating with nothing in the log pointing at the cause. Your config file is never rewritten, and
+  uninstalling the mod leaves your settings exactly as they were.
+
+**Changed**
+
+- Internal id and package renamed. This is what makes the step above necessary. Doing it now, while the
+  mod is new, avoids having to break anyone's setup later.
+- The licence declared inside the jar now matches the one on this page: **CC BY-NC-SA 4.0**.
+
+Everything else behaves exactly as in the previous version.
+
+## v0.1.0-beta.1 — first public release
 
 The companion mod for the iLike2MoveIt resource pack, out in the open for the first time.
 
