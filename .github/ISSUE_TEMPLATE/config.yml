@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Requirements and installation
+    url: https://github.com/joanmarcel/iLike2Moveit-Mod#requirements
+    about: Versions of NeoForge, EMF, ETF and VanillaBackport, and how they fit together — read this first.
+  - name: The resource pack
+    url: https://github.com/joanmarcel/iLike2Moveit-RP
+    about: The other half. Anything about textures, models or animation belongs there.
+  - name: Discord
+    url: https://discord.gg/45YFupj5Q7
+    about: Questions, screenshots and anything that is not a bug report.

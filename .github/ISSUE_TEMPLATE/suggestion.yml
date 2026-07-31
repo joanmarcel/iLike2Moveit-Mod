@@ -1,0 +1,28 @@
+name: Suggestion
+description: An idea for something the mod could unlock.
+labels: ["suggestion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This mod exists to unlock what a resource pack cannot do on its own. Suggestions about
+        textures, models or animation belong in the
+        [resource pack repo](https://github.com/joanmarcel/iLike2Moveit-RP/issues) instead.
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like it to do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why does it need code?
+      description: |
+        What stops a resource pack from doing this by itself? Usually the answer is that the animation
+        needs to know something about the mob's state that vanilla does not expose, or that something
+        is anchored where a pack cannot move it.
+    validations:
+      required: false

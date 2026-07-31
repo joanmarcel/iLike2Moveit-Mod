@@ -1,0 +1,91 @@
+name: Bug report
+description: Something renders wrong, crashes, or does not do what it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Almost every render bug comes down to a version mismatch between the mod, the pack, EMF, ETF
+        and VanillaBackport. The fields below are the ones that make a report reproducible — without
+        them any answer is a guess.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: What is affected?
+      options:
+        - Villager
+        - Fox
+        - Wolf
+        - Cat
+        - Chicken
+        - Pig
+        - A held item
+        - Startup / crash
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happens
+    attributes:
+      label: What happens, and what did you expect instead?
+      placeholder: The trade item stays pinned to the villager's chest instead of following the hands.
+    validations:
+      required: true
+
+  - type: input
+    id: mod-version
+    attributes:
+      label: Mod version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: pack-installed
+    attributes:
+      label: Is the iLike2MoveIt resource pack installed and enabled?
+      description: The mod does nothing on its own. If the pack is missing, that is very likely the cause.
+      options:
+        - "Yes"
+        - "No"
+        - "Not sure"
+    validations:
+      required: true
+
+  - type: input
+    id: loader
+    attributes:
+      label: Minecraft and NeoForge versions
+      placeholder: "1.21.1 / NeoForge 21.1.240"
+    validations:
+      required: true
+
+  - type: input
+    id: emf-etf
+    attributes:
+      label: EMF, ETF and VanillaBackport versions
+      placeholder: "EMF 3.2.4, ETF 7.1, VanillaBackport 1.1.7.10, Platform 1.3.3"
+    validations:
+      required: true
+
+  - type: textarea
+    id: log
+    attributes:
+      label: latest.log
+      description: |
+        Attach or paste `logs/latest.log`. If it is long, the lines mentioning `ilike2moveit`, `Mixin`
+        or `EMF` are the ones that matter. Do not paste your whole mod list as a screenshot — the log
+        already contains it.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot or clip
+      description: For anything visual, one image explains more than a paragraph. Drag it in here.
+    validations:
+      required: false
