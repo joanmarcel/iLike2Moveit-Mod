@@ -1,55 +1,54 @@
 # iLike2MoveIt — Mod
 
-Companion mod for the **[iLike2MoveIt resource pack](https://github.com/joanmarcel/iLike2Moveit-RP)**.
-It unlocks the parts of that pack that cannot be done with a resource pack alone, because they need
-code running in the game.
+The companion mod for the **[iLike2MoveIt resource pack](https://github.com/joanmarcel/iLike2Moveit-RP)**.
+The pack brings vanilla mobs to life with CEM/EMF animation; this mod is the piece that **hands the
+animation engine the information the pack cannot read from the game on its own**.
 
-A resource pack can replace a model and animate it, but it cannot tell the animation *what the mob is
-actually doing*, and it cannot move a held item off the spot vanilla nails it to. That is what this mod
-is for.
+EMF animates from variables. But there are states vanilla does not expose in any useful way — has this
+wolf just found you again? is the fox really asleep or merely standing still? how far along is the cat
+in lying down on you? The mod works those states out on the client and hands them to EMF as animation
+variables, so the pack can react to them. Without this bridge those animations would have nothing to
+fire from.
 
-**Client-side only.** It touches nothing on the server: you can use it on a vanilla server, or on any
-server you already play on, without anyone else installing anything.
+**Client-side only.** Do not install it on a server: it does nothing there.
 
 <!-- Screenshots go here. Add a couple before promoting the Modrinth page:
      a villager holding a trade item mid-gesture, and a sleeping fox with the Zzz particles. -->
 
-## What it unlocks
+## What it does
 
-| | What the mod does |
-|---|---|
-| **Villager** | The trade item follows the animated hands instead of floating pinned to the chest. Adds the woman variant layer, drawn between the biome outfit and the profession one. |
-| **Fox** | Exposes the fox's real state (sitting, sleeping, stalking) to the pack's animations — vanilla's own animation variables report the wrong thing for foxes. Adds the sleeping "Zzz" particles, and makes an item carried in the mouth follow the animated snout. |
-| **Wolf** | Tracks whether you have actually been away, so the pack can play a proper reunion greeting when you come back — and staggers it across several wolves so a pack of them does not greet you in unison. |
-| **Cat** | Exposes vanilla's lie-down progress so the resting animation matches what the cat is really doing. |
-| **Chicken and Pig** | Fixes the warm biome variants, which render deformed with Fresh Animations + VanillaBackport because the model and the texture disagree on size. |
-| **Held items** | Harmonises the apparent size of any held item and seats it consistently, so a diamond, an ingot and a 3D-modelled item all sit correctly in the same spot. |
+- **Wolf — reunion.** Recognises when your wolf finds you again after being apart, and fires its
+  greeting. State is kept per UUID, so each wolf remembers its own. Greetings are staggered, so a pack
+  of them does not greet you in unison.
+- **Cat — resting.** Hands over the real progress of the cat lying down on you, so the transition reads
+  as a movement instead of a jump.
+- **Fox — its own states.** Sitting, sleeping and stalking (crouched), worked out separately because
+  vanilla's flags do not apply to foxes.
+- **Chicken and pig — warm variant.** Repairs the layer missing from VanillaBackport's renderer on
+  1.21.1, so the warm biome variants render correctly.
+- **Villager — trade item.** The item it offers you stops being pinned to its chest and follows the
+  model's animated hands.
+- **Held items.** Harmonises the apparent size of any held item and seats it consistently, so a diamond,
+  an ingot and a 3D-modelled item all sit correctly in the same place.
 
 It also forces one EMF setting (`asmMaths=false`) **in memory only**, so you do not have to edit it by
 hand. Without it the villager's animation block exceeds a JVM limit and the mob silently stops
-animating. Your `entity_model_features.json` is left untouched, and uninstalling the mod gives you your
+animating. Your `entity_model_features.json` is left untouched, and uninstalling the mod gives your
 configuration back exactly as it was.
 
 ## Requirements
 
-The mod does nothing on its own — it is the other half of the resource pack.
+- NeoForge **1.21.1** (21.1.0+)
+- **Entity Model Features (EMF)** 3.2.4+
+- **Entity Texture Features (ETF)** 7.1+
+- **VanillaBackport** 1.1.7.10+ (plus Platform 1.3.3+)
+- The **[iLike2MoveIt resource pack](https://github.com/joanmarcel/iLike2Moveit-RP)**, enabled
 
-| | Tested version |
-|---|---|
-| Minecraft Java | **1.21.1** |
-| Loader | **NeoForge 21.1.240** or later, Java 21 |
-| **EMF** (Entity Model Features) | **3.2.4** |
-| **ETF** (Entity Texture Features) | **7.1** |
-| **VanillaBackport** | **1.1.7.10** (plus Platform **1.3.3**) |
-| The resource pack | [iLike2MoveIt](https://github.com/joanmarcel/iLike2Moveit-RP) |
+## Where this is going
 
-## Installation
-
-1. Install NeoForge for 1.21.1.
-2. Drop EMF, ETF, VanillaBackport and Platform into `mods/`.
-3. Drop this mod's `.jar` into `mods/` as well.
-4. Install the [resource pack](https://github.com/joanmarcel/iLike2Moveit-RP) and enable it, following
-   the load order described there.
+This is the beginning. The plan is to keep widening it: more mobs with states of their own, more
+gestures, and better compatibility with what people already run. Bug reports and suggestions are
+welcome.
 
 ## Reporting a bug
 
@@ -57,8 +56,8 @@ Open an issue. The template asks for the versions of the mod, NeoForge, EMF, ETF
 whether the resource pack is installed, and your `latest.log`. Those are the details that make a render
 bug reproducible — without them almost any report is a guess.
 
-If something looks wrong but you are not sure which half is at fault, report it here anyway. The mod and
-the pack are two pieces of the same thing.
+If something looks wrong but you are not sure which half is at fault, report it here anyway. The mod
+and the pack are two pieces of the same thing.
 
 ## Contributing
 
@@ -79,6 +78,14 @@ the log.
 
 Discord: **https://discord.gg/45YFupj5Q7** — for questions, screenshots and anything that is not a bug
 report.
+
+## Thanks
+
+- To **Traben**, for **Entity Model Features** and **Entity Texture Features** — none of this would be
+  possible without them.
+- To **lukidonu**, for
+  [**Villagers Refreshed**](https://modrinth.com/resourcepack/villagers-refreshed).
+- To **Fresh Animations**, as a reference and a source of inspiration.
 
 ## License
 
