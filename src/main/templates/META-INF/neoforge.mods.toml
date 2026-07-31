@@ -1,0 +1,52 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+logoFile="ilike2moveit.png"
+logoBlur=false
+description='''
+Puente cliente para el resource pack iLike2Moveit: señales EMF del lobo y el gato,
+compatibilidad de variantes de gallina y anclaje del item de comercio del aldeano.
+'''
+
+[[mixins]]
+config="${mod_id}.mixins.json"
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.1.0,)"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="entity_model_features"
+    type="required"
+    versionRange="[3.2.4,)"
+    ordering="AFTER"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="entity_texture_features"
+    type="required"
+    versionRange="[7.1,)"
+    ordering="AFTER"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    modId="vanillabackport"
+    type="required"
+    versionRange="[1.1.7.10,)"
+    ordering="AFTER"
+    side="CLIENT"
