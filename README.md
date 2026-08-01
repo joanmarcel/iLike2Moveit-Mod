@@ -1,4 +1,4 @@
-# iLike2MoveIt — Mod
+# iLike2MoveIt — Core
 
 The companion mod for the **[iLike2MoveIt resource pack](https://github.com/joanmarcel/iLike2Moveit-RP)**.
 The pack brings vanilla mobs to life with CEM/EMF animation; this mod is the piece that **hands the
