@@ -3,6 +3,25 @@
 All notable changes to this mod are documented here. The same text feeds the GitHub release, the
 Modrinth page and the Discord announcement, so they cannot drift apart.
 
+## v0.1.2-beta.1 — now on Fabric
+
+The mod runs on **Fabric** as well as NeoForge. Same features on both: pick the file that matches your
+loader.
+
+**New**
+
+- **Fabric support.** Requires Fabric Loader 0.19.3 or newer and Fabric API. Everything the mod already
+  did on NeoForge works here too: the animation signals the resource pack needs for the wolf, the cat
+  and the fox, the warm chicken and warm pig variants, and the villager's trade item following its
+  animated hands instead of staying pinned to the chest.
+- Two files ship with every release from now on. `iLike2MoveIt-<version>.jar` is the NeoForge build and
+  `iLike2MoveIt-fabric-<version>.jar` is the Fabric one. **Install only the one for your loader.**
+
+**Notes**
+
+- The resource pack is unchanged and works with either loader.
+- On Fabric the mod is client-side only, as it already was on NeoForge. It does nothing on a server.
+
 ## v0.1.1-beta.2 — the mod sets `asmMaths` for you
 
 **You must delete the previous jar before installing this one.** The mod's internal id changed, so if
