@@ -1,9 +1,22 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        maven {
+            name = 'NeoForged'
+            url = 'https://maven.neoforged.net/releases'
+        }
     }
 }
 
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
+
+// common/ NO es subproyecto: es un directorio de fuentes que cada loader anade como srcDir. Darle el
+// plugin java obligaria a desactivarle la compilacion, porque no tiene Minecraft en su classpath.
+include 'neoforge'
+include 'fabric'

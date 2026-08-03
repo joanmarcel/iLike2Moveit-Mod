@@ -1,5 +1,7 @@
 build/
 run/
+# La instancia de desarrollo de Fabric: `run/` no la cubre porque el patron no es un prefijo.
+run-fabric/
 .gradle/
 *.log
 .DS_Store
