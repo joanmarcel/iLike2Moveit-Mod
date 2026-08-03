@@ -1,0 +1,104 @@
+plugins {
+    id 'fabric-loom' version "${loom_version}"
+    id 'idea'
+}
+
+base {
+    archivesName = 'iLike2MoveIt-fabric'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+// El codigo compartido. common/ no es subproyecto: se compila aqui dentro, con los mapeos de Loom y
+// su propio refmap de Mixin.
+sourceSets.main.java.srcDir rootProject.file('common/src/main/java')
+sourceSets.main.resources.srcDir rootProject.file('common/src/main/resources')
+
+repositories {
+    maven {
+        name = 'ParchmentMC'
+        url = 'https://maven.parchmentmc.org'
+    }
+    // Mismo criterio que en neoforge/: la coordenada es el ID DE VERSION de Modrinth, no el numero.
+    // Modrinth reutiliza el mismo version_number para todos los loaders y su maven devuelve una
+    // cualquiera. Los IDs de abajo son los de fabric 1.21.1.
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Modrinth'
+                url = 'https://api.modrinth.com/maven'
+            }
+        }
+        filter { includeGroup 'maven.modrinth' }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    // Mojmap + Parchment: los mismos mapeos que usa neoforge/. Sin esto el codigo de common no
+    // compilaria en los dos lados, porque con Yarn los nombres de Minecraft son otros.
+    mappings loom.layered {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_minecraft_version}:${parchment_mappings_version}@zip")
+    }
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+
+    modCompileOnly 'maven.modrinth:entity-model-features:NLDNY8vg'   // 3.2.4-fabric-1.21
+    modCompileOnly 'maven.modrinth:entitytexturefeatures:udcdeUXw'   // 7.1-fabric-1.21
+    modCompileOnly 'maven.modrinth:vanillabackport:ayvoY8lx'         // 1.1.7.10 fabric
+    modCompileOnly 'maven.modrinth:platform:BbIdNbF1'                // 1.3.3 fabric
+
+    // Y ademas en el cliente de desarrollo, para que arranque sin copiar jars a mano. En NeoForge
+    // esto se hace poblando run/mods/; aqui lo resuelve el build. No viajan en el jar publicado:
+    // modLocalRuntime no es una dependencia declarada del mod.
+    modLocalRuntime 'maven.modrinth:entity-model-features:NLDNY8vg'
+    modLocalRuntime 'maven.modrinth:entitytexturefeatures:udcdeUXw'
+    modLocalRuntime 'maven.modrinth:vanillabackport:ayvoY8lx'
+    modLocalRuntime 'maven.modrinth:platform:BbIdNbF1'
+    // Puzzle no es dependencia del mod, pero SI del banco de pruebas: sin el, los modelos _hand no se
+    // hornean y el objeto de la mano sale como un cubo magenta. El minimo de NeoForge que siembra
+    // tools/verify_client.py son SEIS mods, no cuatro; este es el quinto.
+    modLocalRuntime 'maven.modrinth:puzzle:DuV4z8Sp'                 // 2.3.0+1.21.1-fabric
+    // Y MidnightLib, que Puzzle-fabric SI exige: sin ella el cliente crashea en su entrypoint con
+    // NoClassDefFoundError: eu/midnightdust/lib/config/MidnightConfig. Ojo, docs/playbooks dice que
+    // MidnightLib no es dependencia de Puzzle: eso vale para la version NeoForge, no para esta.
+    modLocalRuntime 'maven.modrinth:midnightlib:as2ZKoB1'            // 1.9.3+1.21.1-fabric
+    // Modefite, el sexto: sin el, los items del trade-show se ven planos en vez de 3D. Su slug en
+    // Modrinth NO es "modefite" —esa busqueda no devuelve nada— sino el de abajo, la misma clase de
+    // trampa que el "entitytexturefeatures" de ETF. El jar de NeoForge que hay en run/mods se llama
+    // modefite.jar y solo trae neoforge.mods.toml, asi que tampoco sirve para deducirlo.
+    modLocalRuntime 'maven.modrinth:modefite-item-definition-backport:XG0Uwv8m'   // 1.0.1+1.21.1
+}
+
+loom {
+    runs {
+        client {
+            // Relativo al projectDir del subproyecto: resuelve a <raiz>/run-fabric. Separada de la
+            // instancia de NeoForge a proposito — mods/ no puede llevar jars de los dos loaders.
+            runDir = '../run-fabric'
+        }
+    }
+}
+
+processResources {
+    // La version se captura en un local A PROPOSITO: el `expand` corre en fase de ejecucion y, si
+    // lee `project.version` desde dentro del closure, la configuration cache (activada en
+    // gradle.properties) aborta el build con "invocation of 'project' ... is unsupported".
+    def modVersion = project.version.toString()
+    inputs.property 'version', modVersion
+    filesMatching('fabric.mod.json') {
+        expand version: modVersion
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "ilike2moveit",
+  "version": "${version}",
+  "name": "iLike2MoveIt",
+  "description": "Client bridge for the iLike2MoveIt resource pack: EMF signals for wolf, cat and fox, chicken and pig variant compat, and trade item anchoring on the villager's animated hands.",
+  "authors": ["joanmarcel"],
+  "contact": {
+    "sources": "https://github.com/joanmarcel/iLike2Moveit-Mod"
+  },
+  "license": "CC BY-NC-SA 4.0",
+  "icon": "ilike2moveit.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["mac.ilike2moveit.fabric.ILike2MoveItFabric"]
+  },
+  "mixins": ["ilike2moveit.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "fabric-api": "*",
+    "minecraft": "1.21.1",
+    "java": ">=21",
+    "entity_model_features": ">=3.2.4",
+    "entity_texture_features": ">=7.1",
+    "vanillabackport": ">=1.1.7.10"
+  }
+}
