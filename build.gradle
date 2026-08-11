@@ -2,73 +2,78 @@ plugins {
     id 'idea'
 }
 
-// El raiz no construye nada: coordina. Cada loader tiene su propio build.gradle.
+// The root project builds nothing directly; it only coordinates the loader subprojects.
 allprojects {
     version = mod_version
     group = mod_group_id
 }
 
-// Gradle ya registra `wrapper` en el proyecto raiz: hay que configurarlo, no volver a declararlo.
+// Gradle already registers `wrapper` on the root project; configure it instead of declaring it again.
 tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-// Un build verde no prueba que el jar lleve dentro lo que debe. Estas entradas son las que rompen el
-// mod en silencio si faltan: el mixins.json (sin el, cero mixins y el juego no avisa), los metadatos
-// del loader, y el asset de la particula.
+// A successful build does not prove that the jars contain everything they need. Missing any of these
+// entries silently breaks the mod: without mixins.json no mixins run, and loader metadata or the
+// particle asset can otherwise disappear unnoticed.
 def jarMustContain = [
         neoforge: ['META-INF/neoforge.mods.toml'],
         fabric  : ['fabric.mod.json'],
 ]
 def sharedEntries = [
         'ilike2moveit.mixins.json',
+        'mac/ilike2moveit/ILike2MoveIt.class',
         'mac/ilike2moveit/mixin/CrossedArmsItemLayerMixin.class',
+        'mac/ilike2moveit/mixin/PigRestingMixin.class',
+        'mac/ilike2moveit/mixin/PigAiThrottleMixin.class',
         'mac/ilike2moveit/MoveItCore.class',
+        'mac/ilike2moveit/network/ServerBridgePayload.class',
+        'mac/ilike2moveit/pig/PigRestingController.class',
+        'mac/ilike2moveit/rabbit/RabbitAnimationBridge.class',
         'assets/ilike2moveit/particles/fox_zzz.json',
 ]
 
-// Las rutas se resuelven AQUI, en configuracion. La configuration cache esta activada en
-// gradle.properties y prohibe llamar a `file(...)` desde un closure de ejecucion ("invocation of
-// 'file' references a Gradle script object ... is unsupported"): el doLast solo puede ver Files ya
-// resueltos, no el objeto Project.
+// Resolve paths HERE during configuration. The configuration cache enabled in gradle.properties
+// forbids calling `file(...)` from an execution closure ("invocation of 'file' references a Gradle
+// script object ... is unsupported"): doLast may only use pre-resolved Files, not the Project object.
 def libsDirs = jarMustContain.collectEntries { loader, ownEntries ->
     [(loader): file("${loader}/build/libs")]
 }
 
 tasks.register('verifyJars') {
     group = 'verification'
-    description = 'Comprueba que los dos jars llevan dentro mixins, metadatos y assets.'
+    description = 'Checks that both jars contain their mixins, metadata and assets.'
     dependsOn ':neoforge:build', ':fabric:build'
     doLast {
         jarMustContain.each { loader, ownEntries ->
             def libs = libsDirs[loader]
-            // Hoy cada libs/ tiene un solo jar (Loom deja el -dev.jar aparte, en build/devlibs/),
-            // pero en cuanto se active un sources/javadoc jar habria dos: el filtro es el que
-            // garantiza que se audita el jar publicable y no un hermano suyo.
+            // Each libs/ currently has one jar (Loom puts the -dev.jar in build/devlibs/), but enabling
+            // a sources or javadoc jar would add another one. This filter guarantees that verification
+            // inspects the publishable jar rather than one of its siblings.
             def jar = libs.listFiles()?.find {
                 it.name.endsWith('.jar') && !it.name.contains('-sources') && !it.name.contains('-dev')
             }
             if (jar == null) {
-                throw new GradleException("No hay jar en ${libs}")
+                throw new GradleException("No jar found in ${libs}")
             }
             def names = new java.util.zip.ZipFile(jar).entries().collect { it.name } as Set
             (ownEntries + sharedEntries).each { entry ->
                 if (!names.contains(entry)) {
-                    throw new GradleException("${jar.name} no contiene ${entry}")
+                    throw new GradleException("${jar.name} does not contain ${entry}")
                 }
             }
-            println "OK ${jar.name}: ${(ownEntries + sharedEntries).size()} entradas presentes"
+            println "OK ${jar.name}: ${(ownEntries + sharedEntries).size()} required entries present"
         }
     }
 }
 
-// Aqui vivia syncLegacyJarPath, que copiaba el jar de NeoForge a build/libs/ de la raiz porque
-// publish_public.py lo buscaba ahi. Era un puente hasta que el script aprendiera la estructura
-// multiloader; ya lee cada subproyecto, asi que sobra. Con ella se va el riesgo que la obligaba a ser
-// un Sync y no un Copy: la raiz no tiene tarea clean —no aplica el plugin base—, de modo que un jar de
-// una version anterior podia sobrevivir ahi y publicarse en silencio.
+// syncLegacyJarPath used to copy the NeoForge jar into the root build/libs/ because
+// publish_public.py looked there. It was only a bridge until the publisher learned the multiloader
+// layout. Removing it also removes the stale-artifact risk that required Sync instead of Copy: the
+// root does not apply the base plugin and therefore has no clean task, so an old jar could survive
+// there and be published silently.
 tasks.register('build') {
     group = 'build'
-    description = 'Construye los dos loaders y verifica que sus jars llevan dentro lo que deben.'
+    description = 'Builds both loaders and verifies that their jars contain all required entries.'
     dependsOn 'verifyJars'
 }

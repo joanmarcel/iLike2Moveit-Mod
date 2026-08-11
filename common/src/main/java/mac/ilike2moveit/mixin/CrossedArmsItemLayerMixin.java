@@ -87,8 +87,8 @@ public abstract class CrossedArmsItemLayerMixin<T extends LivingEntity, M extend
     private static final float[] ilike2moveit$rotX = {90.0F, -90.0F};
     private static final float[] ilike2moveit$rotY = {0.0F, 180.0F};
     private static final float[] ilike2moveit$rotZ = {180.0F, 0.0F};
-    // Calibracion visual propia de los recipientes del wandering trader. No se mezcla con los
-    // objetos que un villager ofrece: cada indice conserva su ajuste independiente 2D/3D.
+    // Dedicated visual calibration for wandering-trader drink containers. It does not share values
+    // with villager trade items; each index keeps its own independent 2D/3D adjustment.
     private static final float[] ILIKE2MOVEIT$TRADER_DRINK_OX = {0.0F, 0.0F};
     private static final float[] ILIKE2MOVEIT$TRADER_DRINK_OY = {-1.10F, -1.09F};
     private static final float[] ILIKE2MOVEIT$TRADER_DRINK_OZ = {-0.15F, -0.20F};
@@ -158,8 +158,8 @@ public abstract class CrossedArmsItemLayerMixin<T extends LivingEntity, M extend
         ItemStack stack = entity.getItemBySlot(EquipmentSlot.MAINHAND);
         if (stack.isEmpty()) return;
 
-        // UseItemGoal equipa pocion/leche y limpia el slot en pasos distintos. Solo se muestran
-        // durante el uso sincronizado: un slot cliente rezagado no deja la botella flotando.
+        // UseItemGoal equips a potion or milk and clears the slot in separate steps. Show it only
+        // during synchronized use so a lagging client slot cannot leave the bottle floating.
         boolean traderPotion = wanderingTrader && stack.is(Items.POTION);
         boolean traderMilk = wanderingTrader && stack.is(Items.MILK_BUCKET);
         boolean traderDrink = traderPotion || traderMilk;
@@ -168,8 +168,8 @@ public abstract class CrossedArmsItemLayerMixin<T extends LivingEntity, M extend
             int ticksUsing = entity.getTicksUsingItem();
             boolean withinUseWindow = entity.isUsingItem()
                     && ticksUsing >= 0 && ticksUsing < useDuration;
-            // La aplicacion del efecto es un segundo cierre autoritativo: la pocion termina al
-            // hacerse invisible y la leche al volver visible, incluso si el flag de uso llega tarde.
+            // Effect application is a second authoritative gate: the potion ends when invisibility
+            // begins and milk ends when visibility returns, even if the use flag arrives late.
             boolean effectPending = traderPotion ? !entity.isInvisible() : entity.isInvisible();
             if (!withinUseWindow || !effectPending) {
                 ci.cancel();
@@ -185,8 +185,8 @@ public abstract class CrossedArmsItemLayerMixin<T extends LivingEntity, M extend
         // --- Path 1: native EMF locator (item as a real child of the animated arm, fluid). ---
         PoseStack.Pose locator = EmfLocatorBridge.currentRightItemPose();
 
-        // El trader solo se reemplaza cuando su pack aporta el held_item locator. Sin él se deja
-        // intacto el render vanilla; el DFS de brazos es una reserva exclusiva del trade villager.
+        // Replace the trader layer only when its pack provides the held_item locator. Otherwise keep
+        // vanilla rendering intact; the arm-tree fallback is reserved for trading villagers.
         if (wanderingTrader && locator == null) {
             if (ilike2moveit$debug) mac.ilike2moveit.MoveItCore.LOGGER.info(
                 "[WanderingTraderItem] locator=NULL cfgExists={}", ILIKE2MOVEIT$CFG.exists());
@@ -253,9 +253,9 @@ public abstract class CrossedArmsItemLayerMixin<T extends LivingEntity, M extend
         boolean leftHand = (dc == ItemDisplayContext.THIRD_PERSON_LEFT_HAND
                 || dc == ItemDisplayContext.FIRST_PERSON_LEFT_HAND);
         int g = flat ? ILIKE2MOVEIT$FLAT : ILIKE2MOVEIT$SOLID;
-        // La silueta fina del fallback 2D satura el armonizador y lo infla hasta 1.8x.
-        // Mantener esos recipientes en la escala plana autorada; los modelos 3D conservan
-        // la armonizacion normal que ya iguala correctamente su volumen visual.
+        // The thin 2D fallback silhouette saturates the harmonizer and inflates it to 1.8x. Keep those
+        // containers at their authored flat scale; 3D models retain normal harmonization, which already
+        // equalizes their visual volume correctly.
         float harmonyExponent = traderDrink && flat ? 0.0F : ilike2moveit$harmony;
         float harmony = ItemSizeHarmonizer.harmonyScale(bm, dc, leftHand, harmonyExponent);
         float ox = traderDrink ? ILIKE2MOVEIT$TRADER_DRINK_OX[g] : ilike2moveit$ox[g];

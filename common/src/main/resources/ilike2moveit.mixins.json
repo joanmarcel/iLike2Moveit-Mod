@@ -3,8 +3,18 @@
   "minVersion": "0.8.5",
   "package": "mac.ilike2moveit.mixin",
   "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "CowBiomeVariantMixin",
+    "CowBiomeVariantSpawnMixin",
+    "PigAiThrottleMixin",
+    "PigBiomeVariantSpawnMixin",
+    "PigRestingMixin"
+  ],
   "client": [
+    "CatRendererYawLockMixin",
+    "WolfRendererYawLockMixin",
     "ChickenVariantRendererMixin",
+    "CowVariantRendererMixin",
     "PigVariantRendererMixin",
     "CrossedArmsItemLayerMixin",
     "FoxHeldItemLayerMixin",

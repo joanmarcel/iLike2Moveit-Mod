@@ -87,7 +87,7 @@ public abstract class ChickenVariantRendererMixin {
             if (!ilike2moveit$loggedWarmSelection) {
                 ilike2moveit$loggedWarmSelection = true;
                 MoveItCore.LOGGER.info(
-                        "[Chicken Compat] warm adulto usa el modelo dedicado warm_chicken; cold queda intacto."
+                        "[Chicken Compat] adult warm uses the dedicated warm_chicken model; cold is unchanged."
                 );
             }
         }

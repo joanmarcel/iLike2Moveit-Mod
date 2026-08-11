@@ -8,7 +8,7 @@ plugins {
 version = mod_version
 group = mod_group_id
 
-// common/ no es subproyecto: se compila aqui dentro, con los mapeos de este loader.
+// common/ is not a subproject; it is compiled here with this loader's mappings.
 sourceSets.main.java.srcDir rootProject.file('common/src/main/java')
 sourceSets.main.resources.srcDir rootProject.file('common/src/main/resources')
 sourceSets.test.java.srcDir rootProject.file('common/src/test/java')
@@ -19,9 +19,9 @@ sourceSets.main.resources {
 }
 
 repositories {
-    // Maven de Modrinth: sirve EMF, ETF, VanillaBackport y Platform. Sin esto, el build depende de
-    // que existan jars sueltos en run/mods/, que esta en .gitignore — o sea, no compila en CI ni en
-    // un clon limpio. `exclusiveContent` evita que Gradle busque el resto de dependencias aqui.
+    // Modrinth Maven supplies EMF, ETF, VanillaBackport and Platform. Without it, the build depends on
+    // loose jars under the gitignored run/mods/ and therefore fails in CI or a clean clone.
+    // `exclusiveContent` keeps Gradle from looking here for unrelated dependencies.
     exclusiveContent {
         forRepository {
             maven {
@@ -88,23 +88,20 @@ neoForge {
 
         // applies to all the run configs above
         configureEach {
-            // ModDevGradle apunta por convencion a <projectDir>/run, que ahora seria neoforge/run:
-            // vacia. La instancia de desarrollo real —con EMF, ETF, VanillaBackport y Platform en
-            // mods/— vive en la raiz, y sin esto FML se para en la pantalla de dependencias ausentes.
+            // ModDevGradle defaults to <projectDir>/run, which would now be an empty neoforge/run. The
+            // real development instance lives at the root with EMF, ETF, VanillaBackport and Platform
+            // in mods/; without this setting FML stops at the missing-dependencies screen.
             //
-            // Con -PgameDir=<ruta> se apunta a otro gameDir sin tocar este fichero: es lo que usan los
-            // clientes de verificacion del resource pack, uno por worktree, con seis mods en vez de
-            // los ~130 del modpack (los siembra iLike2MoveIt/tools/verify_client.py). Sin la
-            // propiedad, el comportamiento es el de siempre.
+            // -PgameDir=<path> selects another game directory without editing this file. Resource-pack
+            // verification clients use it to give every worktree an isolated six-mod instance instead
+            // of the roughly 130-mod main pack (seeded by iLike2MoveIt/tools/verify_client.py). Without
+            // the property, the existing root instance remains the default.
             gameDirectory = project.hasProperty('gameDir')
                     ? file(project.gameDir.toString().replaceFirst('^~', System.getProperty('user.home')))
                     : rootProject.file('run')
 
-            // -PmcTitle="Minecraft (turtle)" distingue el cliente de verificacion de cada worktree.
-            // -Xdock:name solo renombra el menu/Dock de macOS (el titulo de la VENTANA sigue diciendo
-            // "NeoForge 1.21.1"); por eso ademas se pasa como system property y el mod puente fija el
-            // titulo real de la ventana GLFW en client tick (ver ILike2MoveItMod#applyWindowTitle).
-            // Sin la propiedad, comportamiento de siempre.
+            // -PmcTitle distinguishes the verification client for each worktree. -Xdock:name
+            // only renames the macOS menu/Dock, so the client bridge also reasserts the GLFW title.
             if (project.hasProperty('mcTitle')) {
                 jvmArgument "-Xdock:name=${project.mcTitle}"
                 systemProperty 'il2m.windowTitle', project.mcTitle
@@ -143,19 +140,19 @@ configurations {
 }
 
 dependencies {
-    // OJO: la coordenada es el ID DE VERSION de Modrinth, no el numero de version. Modrinth reutiliza
-    // el mismo `version_number` para todos los loaders (VanillaBackport 1.1.7.10 existe en fabric,
-    // forge, neoforge y quilt), y su maven devuelve una cualquiera: con el numero bajaba el jar de
-    // Forge, que no trae com.blackgear.vanillabackport.client.api.renderer y rompia el compilado. El
-    // ID identifica UNA version concreta. Para actualizarlos:
+    // IMPORTANT: these coordinates use Modrinth VERSION IDs, not version numbers. Modrinth reuses the
+    // same `version_number` across loaders (VanillaBackport 1.1.7.10 exists for Fabric, Forge, NeoForge
+    // and Quilt), and its Maven may return any one of them. Using the number downloaded the Forge jar,
+    // which lacks com.blackgear.vanillabackport.client.api.renderer and broke compilation. An ID selects
+    // exactly one loader-specific version. To update them:
     //   curl -s "https://api.modrinth.com/v2/project/<slug>/version?loaders=%5B%22neoforge%22%5D&game_versions=%5B%221.21.1%22%5D"
     //
     // EMF is supplied by the test/client instance.  Compile against its public animation API without
     // bundling it into this client helper mod.
     compileOnly 'maven.modrinth:entity-model-features:PAYgk63v'   // 3.2.4-neoforge-1.21
     compileOnly 'maven.modrinth:entitytexturefeatures:YEMROAHv'   // 7.1-neoforge-1.21
-    // VanillaBackport sigue siendo un mod externo; estas APIs solo registran la capa warm que falta
-    // en su renderer de gallinas para 1.21.1.
+    // VanillaBackport remains an external mod; these APIs only register the missing warm layer in its
+    // 1.21.1 chicken renderer.
     compileOnly 'maven.modrinth:vanillabackport:rUSWdBok'         // 1.1.7.10 neoforge
     compileOnly 'maven.modrinth:platform:v7P0nBi2'                // 1.3.3 neoforge
 
@@ -231,14 +228,23 @@ tasks.named('test', Test).configure {
 
 tasks.register('wolfReunionLab', JavaExec) {
     group = 'verification'
-    description = 'Reproduce dos ciclos completos del tracker de reencuentro.'
+    description = 'Exercises two complete cycles of the reunion tracker.'
     dependsOn testClasses
     classpath = sourceSets.test.runtimeClasspath
     mainClass = 'mac.ilike2moveit.wolf.WolfReunionStateLab'
 }
 
+tasks.register('pigRestingPolicyLab', JavaExec) {
+    group = 'verification'
+    description = 'Checks quotas, probabilities and timings for collective pig resting.'
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'mac.ilike2moveit.pig.PigRestingPolicyLab'
+    enableAssertions = true
+}
+
 tasks.named('check').configure {
-    dependsOn wolfReunionLab
+    dependsOn wolfReunionLab, pigRestingPolicyLab
 }
 
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.

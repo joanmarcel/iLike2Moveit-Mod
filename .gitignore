@@ -1,6 +1,6 @@
 build/
 run/
-# La instancia de desarrollo de Fabric: `run/` no la cubre porque el patron no es un prefijo.
+# Fabric development instance: `run/` does not cover it because that pattern is not a prefix.
 run-fabric/
 .gradle/
 *.log

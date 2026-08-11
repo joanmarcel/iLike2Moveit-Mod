@@ -122,7 +122,7 @@ final class WolfReunionState {
 
     void schedulePendingSequence(int sequence, long releaseTick) {
         if (pendingSequence != sequence || sequence <= 0) {
-            throw new IllegalStateException("No se puede planificar una secuencia que no esta pendiente");
+            throw new IllegalStateException("Cannot schedule a sequence that is not pending");
         }
         pendingReleaseTick = releaseTick;
     }

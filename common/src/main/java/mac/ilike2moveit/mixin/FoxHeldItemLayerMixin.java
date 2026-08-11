@@ -217,7 +217,7 @@ public abstract class FoxHeldItemLayerMixin extends RenderLayer<Fox, FoxModel<Fo
         Vector3f pivot = ItemSizeHarmonizer.visualCenter(bm, dc, leftHand);
         ps.translate(-pivot.x, -pivot.y, -pivot.z);
         if (ilike2moveit$debug) mac.ilike2moveit.MoveItCore.LOGGER.info(
-            "[FoxItem] item={} grupo={} modelo={} viaModefite={} pivot=({}, {}, {}) harmony={} scale={} ctx={} m={} ref={} err={}",
+            "[FoxItem] item={} group={} model={} viaModefite={} pivot=({}, {}, {}) harmony={} scale={} ctx={} m={} ref={} err={}",
             stack.getItem(), g == ILIKE2MOVEIT$FLAT ? "GROUND(fox_)" : "HAND(fox3d_)",
             bm.getClass().getSimpleName(), mac.ilike2moveit.compat.ModefiteBridge.isActive(),
             pivot.x, pivot.y, pivot.z, harmony, s, dc,

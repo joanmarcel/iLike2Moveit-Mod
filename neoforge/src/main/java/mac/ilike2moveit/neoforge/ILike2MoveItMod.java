@@ -1,96 +1,76 @@
 package mac.ilike2moveit.neoforge;
 
-import mac.ilike2moveit.MoveItCore;
-import mac.ilike2moveit.chicken.ChickenVariantCompat;
-import mac.ilike2moveit.fox.FoxSleepParticleEmitter;
-import mac.ilike2moveit.fox.FoxZzzParticle;
-import mac.ilike2moveit.fox.MoveItParticles;
-import mac.ilike2moveit.pig.PigVariantCompat;
-import mac.ilike2moveit.render.ItemTransformCompat;
-import mac.ilike2moveit.wolf.WolfReunionTracker;
-import net.minecraft.client.Minecraft;
+import mac.ilike2moveit.ILike2MoveIt;
+import mac.ilike2moveit.network.ServerBridgePayload;
+import mac.ilike2moveit.network.ServerBridgeState;
+import mac.ilike2moveit.cow.CowBiomeVariants;
+import mac.ilike2moveit.pig.PigBiomeVariants;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.Cow;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.NetworkRegistry;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/**
- * NeoForge entrypoint. Registers what the loader owns and delegates every behaviour to common code.
- */
-@Mod(value = MoveItCore.MODID, dist = Dist.CLIENT)
-public class ILike2MoveItMod {
+/** Common NeoForge entrypoint; client wiring is loaded only on the physical client. */
+@Mod(ILike2MoveIt.MODID)
+public final class ILike2MoveItMod {
     private static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES =
-            DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, MoveItCore.MODID);
-
-    /** Sleeping fox "Zzz" emote. {@code overrideLimiter=false}: honours the distance-based count. */
+            DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, ILike2MoveIt.MODID);
     private static final DeferredHolder<ParticleType<?>, SimpleParticleType> FOX_ZZZ =
-            PARTICLE_TYPES.register(MoveItParticles.FOX_ZZZ_ID.getPath(),
-                    () -> new SimpleParticleType(false));
+            PARTICLE_TYPES.register("fox_zzz", () -> new SimpleParticleType(false));
 
     public ILike2MoveItMod(IEventBus modEventBus) {
-        MoveItCore.LOGGER.info("[iLike2MoveIt] client bridge loaded (neoforge).");
-        // Before any registration: enforce() must run as early as it did in the single-loader
-        // version, or the villager does not animate and the symptom hides the cause.
-        MoveItCore.bootstrap();
-        // NeoForge patches rightRotation into vanilla's ItemTransform; common defaults to identity.
-        ItemTransformCompat.setRightRotationAccessor(transform -> transform.rightRotation);
-        PARTICLE_TYPES.register(modEventBus);
-        modEventBus.addListener(ILike2MoveItMod::registerLayerDefinitions);
-        modEventBus.addListener(ILike2MoveItMod::registerParticleProviders);
-        NeoForge.EVENT_BUS.addListener(ILike2MoveItMod::onClientTick);
-        NeoForge.EVENT_BUS.addListener(NeoForgeWolfCommand::register);
-    }
-
-    private static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(ChickenVariantCompat.WARM_CHICKEN_LAYER,
-                ChickenVariantCompat::createWarmChickenLayer);
-        event.registerLayerDefinition(PigVariantCompat.WARM_PIG_LAYER,
-                PigVariantCompat::createWarmPigLayer);
-        MoveItCore.LOGGER.info("[Chicken Compat] warm_chicken layer registered.");
-        MoveItCore.LOGGER.info("[Pig Compat] warm_pig layer registered.");
-    }
-
-    private static void registerParticleProviders(RegisterParticleProvidersEvent event) {
-        MoveItParticles.setFoxZzz(FOX_ZZZ.get());
-        event.registerSpriteSet(FOX_ZZZ.get(), FoxZzzParticle.Provider::new);
-        MoveItCore.LOGGER.info("[Fox] particle provider '{}' registered.", MoveItParticles.FOX_ZZZ_ID);
-    }
-
-    private static long clientTicks = 0L;
-    private static boolean windowTitleLogged = false;
-
-    private static void onClientTick(ClientTickEvent.Post event) {
-        Minecraft minecraft = Minecraft.getInstance();
-        applyWindowTitle(minecraft);
-        WolfReunionTracker.clientTick(minecraft);
-        FoxSleepParticleEmitter.clientTick(minecraft);
-    }
-
-    /**
-     * Dev-only: label the per-worktree verification client window (see neoforge/build.gradle,
-     * {@code -PmcTitle="Minecraft (dolphin)" -> -Dil2m.windowTitle}). {@code -Xdock:name} only renames
-     * the macOS menu; the GLFW window title still reads "NeoForge 1.21.1", so we set it here. Reasserted
-     * every ~2 s because NeoForge/Minecraft may rewrite the title (e.g. on level load).
-     */
-    private static void applyWindowTitle(Minecraft minecraft) {
-        String title = System.getProperty("il2m.windowTitle");
-        if (title == null || title.isBlank() || minecraft == null || minecraft.getWindow() == null) {
-            return;
+        ILike2MoveIt.LOGGER.info("[iLike2MoveIt] common bridge loaded (neoforge).");
+        CowBiomeVariants.bootstrap();
+        PigBiomeVariants.bootstrap();
+        modEventBus.addListener(ILike2MoveItMod::registerPayloads);
+        NeoForge.EVENT_BUS.addListener(ILike2MoveItMod::onPlayerLoggedIn);
+        NeoForge.EVENT_BUS.addListener(ILike2MoveItMod::onEntityJoinLevel);
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            PARTICLE_TYPES.register(modEventBus);
+            ILike2MoveItNeoForgeClient.bootstrap(modEventBus);
         }
-        if (clientTicks++ % 40L == 0L) {
-            minecraft.getWindow().setTitle(title);
-            if (!windowTitleLogged) {
-                MoveItCore.LOGGER.info("[iLike2MoveIt] window title set to '{}'.", title);
-                windowTitleLogged = true;
+    }
+
+    private static void registerPayloads(RegisterPayloadHandlersEvent event) {
+        event.registrar(Integer.toString(ServerBridgePayload.PROTOCOL)).optional().playToClient(
+                ServerBridgePayload.TYPE,
+                ServerBridgePayload.STREAM_CODEC,
+                (payload, context) -> ServerBridgeState.accept(payload));
+    }
+
+    private static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player
+                && NetworkRegistry.hasChannel(player.connection,
+                        ServerBridgePayload.TYPE.id())) {
+            PacketDistributor.sendToPlayer(player, ServerBridgePayload.CURRENT);
+        }
+    }
+
+    private static void onEntityJoinLevel(EntityJoinLevelEvent event) {
+        if (!event.getLevel().isClientSide()) {
+            if (event.getEntity() instanceof Cow cow) {
+                CowBiomeVariants.resolveNewCowBreed(cow);
+            } else if (event.getEntity() instanceof Pig pig) {
+                PigBiomeVariants.resolveNewPigBreed(pig);
             }
         }
+    }
+
+    static SimpleParticleType foxZzz() {
+        return FOX_ZZZ.get();
     }
 }

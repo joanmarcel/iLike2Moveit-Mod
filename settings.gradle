@@ -16,7 +16,7 @@ plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
 
-// common/ NO es subproyecto: es un directorio de fuentes que cada loader anade como srcDir. Darle el
-// plugin java obligaria a desactivarle la compilacion, porque no tiene Minecraft en su classpath.
+// common/ is NOT a subproject: each loader adds it as a source directory. Applying the Java plugin
+// would require disabling its compilation because it has no Minecraft classes on its own classpath.
 include 'neoforge'
 include 'fabric'
