@@ -3,6 +3,40 @@
 All notable changes to this mod are documented here. The same text feeds the GitHub release, the
 Modrinth page and the Discord announcement, so they cannot drift apart.
 
+## v0.2.0-beta.1 — server-backed behavior and persistent breeds
+
+The bridge now runs on the server as well as the client. A versioned handshake keeps every
+server-authoritative animation state safely disabled when a client joins a server without the mod.
+
+**New**
+
+- **Pig — collective resting.** Adult pigs can lie down in nearby groups of four or more. The server
+  owns the state, limits resting pigs to half of each local group, and synchronizes the full
+  lie-down/hold/get-up cycle to clients.
+- **Persistent pig and cow breeds.** Biome identity is assigned once at spawn, survives movement and
+  reloads, and follows VanillaBackport inheritance when animals breed. Named and cosmetic variants
+  remain visual overrides rather than rewriting that identity.
+- **Cow presentation.** Climate and persistent biome breeds route through dedicated EMF layers;
+  birch cows and the named bull presentation render with the matching model and atlas.
+- **Rabbit signals.** The pack can read the vanilla client jump clock, vertical velocity and actual
+  horizontal travel instead of reconstructing them from unreliable ground-state guesses.
+- **Villager vehicles.** Villagers and wandering traders expose whether they are riding a boat,
+  separately from the generic riding state used by minecarts.
+
+**Fixed**
+
+- Resting cats and wolves keep their body heading stable while their heads remain free to track.
+- Wandering-trader potion and milk items follow the animated locator only during their real use
+  window, without stale bottles floating after the effect changes.
+- Publishable source comments, build diagnostics and test failures are consistently in English.
+
+**Installation**
+
+- Choose exactly one client jar: `iLike2MoveIt-0.2.0-beta.1.jar` for NeoForge or
+  `iLike2MoveIt-fabric-0.2.0-beta.1.jar` for Fabric.
+- Install the matching jar on the server to enable collective pig resting and persistent custom
+  breeds. Clients can still join servers without it; server-backed states then remain disabled.
+
 ## v0.1.2-beta.1 — now on Fabric
 
 The mod runs on **Fabric** as well as NeoForge. Same features on both: pick the file that matches your
