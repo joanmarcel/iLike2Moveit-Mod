@@ -16,8 +16,8 @@ public final class NeoForgeWolfCommand {
     }
 
     public static void register(RegisterClientCommandsEvent event) {
-        event.getDispatcher().register(Commands.literal("ilike2moveitwolf_reunion_test")
+        event.getDispatcher().register(Commands.literal("il2m_wolf_reunion_test")
                 .executes(context -> WolfReunionTracker.queueDiagnosticReturn()));
-        MoveItCore.LOGGER.info("[Wolf Reunion] client command /ilike2moveitwolf_reunion_test registered.");
+        MoveItCore.LOGGER.info("[Wolf Reunion] client command /il2m_wolf_reunion_test registered.");
     }
 }

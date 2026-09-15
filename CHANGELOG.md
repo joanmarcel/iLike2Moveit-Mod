@@ -3,6 +3,25 @@
 All notable changes to this mod are documented here. The same text feeds the GitHub release, the
 Modrinth page and the Discord announcement, so they cannot drift apart.
 
+## v0.2.1-beta.2 — reliable rendering across both loaders
+
+This update fixes a production Fabric rendering failure and improves model and attachment isolation. Use it with iLike2MoveIt RP v1.1.2-beta.4 and choose the JAR matching your loader.
+
+**Availability:** This release is available for NeoForge first. The Fabric build of this version is not published yet.
+
+**Fixed**
+
+- EMF render hooks now resolve the Minecraft method name used by production Fabric as well as NeoForge, preventing model transformation failures.
+- Dedicated baby models and render-pass attachment capture keep adult models, collars and held items from inheriting another entity's render state.
+- Build verification checks the exact generated JAR, configured mixins and Fabric refmap.
+
+**Installation**
+
+- Minecraft 1.21.1; install only one JAR for your loader.
+- VanillaBackport 1.1.7.10 or newer is required wherever Core is installed, including servers. Install its matching dependencies; Fabric also requires Fabric API.
+- Tiny Takeover baby presentations remain selectable alongside Classic. Sheep offers Classic and Alternate presentations.
+- Replace the previous Core JAR before installing this version.
+
 ## v0.2.0-beta.1 — server-backed behavior and persistent breeds
 
 The bridge now runs on the server as well as the client. A versioned handshake keeps every

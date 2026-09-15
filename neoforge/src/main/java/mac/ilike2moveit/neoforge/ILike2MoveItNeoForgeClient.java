@@ -2,14 +2,19 @@ package mac.ilike2moveit.neoforge;
 
 import mac.ilike2moveit.MoveItCore;
 import mac.ilike2moveit.chicken.ChickenVariantCompat;
+import mac.ilike2moveit.cat.CatVariantCompat;
 import mac.ilike2moveit.cow.CowVariantCompat;
 import mac.ilike2moveit.fox.FoxSleepParticleEmitter;
 import mac.ilike2moveit.fox.FoxZzzParticle;
 import mac.ilike2moveit.fox.MoveItParticles;
 import mac.ilike2moveit.network.ServerBridgeState;
+import mac.ilike2moveit.ocelot.OcelotVariantCompat;
+import mac.ilike2moveit.rabbit.RabbitVariantCompat;
 import mac.ilike2moveit.pig.PigVariantCompat;
 import mac.ilike2moveit.render.ItemTransformCompat;
+import mac.ilike2moveit.sheep.SheepVariantCompat;
 import mac.ilike2moveit.wolf.WolfReunionTracker;
+import mac.ilike2moveit.wolf.WolfVariantCompat;
 import net.minecraft.client.Minecraft;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
@@ -42,6 +47,32 @@ final class ILike2MoveItNeoForgeClient {
     private static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(ChickenVariantCompat.WARM_CHICKEN_LAYER,
                 ChickenVariantCompat::createWarmChickenLayer);
+        event.registerLayerDefinition(ChickenVariantCompat.TINY_TAKEOVER_CHICKEN_LAYER,
+                ChickenVariantCompat::createTinyTakeoverChickenLayer);
+        event.registerLayerDefinition(CatVariantCompat.CLASSIC_BABY_CAT_LAYER,
+                CatVariantCompat::createClassicBabyCatLayer);
+        event.registerLayerDefinition(CatVariantCompat.CLASSIC_BABY_CAT_COLLAR_LAYER,
+                CatVariantCompat::createClassicBabyCatLayer);
+        event.registerLayerDefinition(CatVariantCompat.TINY_TAKEOVER_CAT_LAYER,
+                CatVariantCompat::createTinyTakeoverCatLayer);
+        event.registerLayerDefinition(CatVariantCompat.TINY_TAKEOVER_CAT_COLLAR_LAYER,
+                CatVariantCompat::createTinyTakeoverCatLayer);
+        event.registerLayerDefinition(WolfVariantCompat.TINY_TAKEOVER_WOLF_LAYER,
+                WolfVariantCompat::createTinyTakeoverWolfLayer);
+        event.registerLayerDefinition(WolfVariantCompat.TINY_TAKEOVER_WOLF_COLLAR_LAYER,
+                WolfVariantCompat::createTinyTakeoverWolfLayer);
+        event.registerLayerDefinition(WolfVariantCompat.TINY_TAKEOVER_WOLF_ARMOR_LAYER,
+                WolfVariantCompat::createTinyTakeoverWolfLayer);
+        event.registerLayerDefinition(OcelotVariantCompat.CLASSIC_BABY_OCELOT_LAYER,
+                OcelotVariantCompat::createClassicBabyOcelotLayer);
+        event.registerLayerDefinition(OcelotVariantCompat.TINY_TAKEOVER_OCELOT_LAYER,
+                OcelotVariantCompat::createTinyTakeoverOcelotLayer);
+        event.registerLayerDefinition(RabbitVariantCompat.TINY_TAKEOVER_RABBIT_LAYER,
+                RabbitVariantCompat::createTinyTakeoverRabbitLayer);
+        event.registerLayerDefinition(SheepVariantCompat.ALTERNATE_SHEEP_LAYER,
+                SheepVariantCompat::createAlternateSheepLayer);
+        event.registerLayerDefinition(SheepVariantCompat.ALTERNATE_SHEEP_WOOL_LAYER,
+                SheepVariantCompat::createAlternateSheepWoolLayer);
         event.registerLayerDefinition(CowVariantCompat.WARM_COW_LAYER,
                 CowVariantCompat::createCowLayer);
         event.registerLayerDefinition(CowVariantCompat.COLD_COW_LAYER,
@@ -78,7 +109,11 @@ final class ILike2MoveItNeoForgeClient {
                 PigVariantCompat::createPigletLayer);
         event.registerLayerDefinition(PigVariantCompat.COLD_PIGLET_LAYER,
                 PigVariantCompat::createPigletLayer);
+        event.registerLayerDefinition(PigVariantCompat.TINY_TAKEOVER_PIGLET_LAYER,
+                PigVariantCompat::createPigletLayer);
         MoveItCore.LOGGER.info("[Chicken Compat] warm_chicken layer registered.");
+        MoveItCore.LOGGER.info("[Cat Compat] Classic and Tiny Takeover baby body/collar layers registered.");
+        MoveItCore.LOGGER.info("[Sheep Compat] Vanilla and Alternate adult base/wool layers registered.");
         MoveItCore.LOGGER.info("[Cow Compat] named, climate, biome-breed and calf layers registered.");
         MoveItCore.LOGGER.info("[Pig Compat] named, climate, biome-breed and piglet layers registered.");
     }

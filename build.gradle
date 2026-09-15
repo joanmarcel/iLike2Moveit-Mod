@@ -18,14 +18,39 @@ tasks.named('wrapper', Wrapper).configure {
 // particle asset can otherwise disappear unnoticed.
 def jarMustContain = [
         neoforge: ['META-INF/neoforge.mods.toml'],
-        fabric  : ['fabric.mod.json'],
+        fabric  : ['fabric.mod.json', 'ilike2moveit.refmap.json'],
 ]
 def sharedEntries = [
         'ilike2moveit.mixins.json',
         'mac/ilike2moveit/ILike2MoveIt.class',
         'mac/ilike2moveit/mixin/CrossedArmsItemLayerMixin.class',
+        'mac/ilike2moveit/mixin/IronGolemFlowerLayerMixin.class',
+        'mac/ilike2moveit/mixin/EmfLivingEntityRenderScopeMixin.class',
+        'mac/ilike2moveit/mixin/EmfModelPartRenderPassMixin.class',
+        'mac/ilike2moveit/mixin/EmfAttachmentCaptureMixin.class',
+        'mac/ilike2moveit/render/RenderedAttachmentCaptureScope.class',
+        'mac/ilike2moveit/mixin/SheepWoolUndercoatLayerMixin.class',
+        'mac/ilike2moveit/sheep/SheepUndercoatCompat.class',
+        'mac/ilike2moveit/mixin/SheepModelVariantMixin.class',
+        'mac/ilike2moveit/mixin/SheepRendererModelVariantMixin.class',
+        'mac/ilike2moveit/mixin/SheepFurModelVariantMixin.class',
+        'mac/ilike2moveit/sheep/SheepAlternateModelAccess.class',
+        'mac/ilike2moveit/sheep/SheepVariantCompat.class',
+        'mac/ilike2moveit/mixin/VillagerProfessionLayerMixin.class',
         'mac/ilike2moveit/mixin/PigRestingMixin.class',
         'mac/ilike2moveit/mixin/PigAiThrottleMixin.class',
+        'mac/ilike2moveit/mixin/CatModelVariantMixin.class',
+        'mac/ilike2moveit/mixin/CatCollarModelVariantMixin.class',
+        'mac/ilike2moveit/mixin/CatRendererYawLockMixin.class',
+        'mac/ilike2moveit/cat/CatVariantCompat.class',
+        'mac/ilike2moveit/mixin/WolfModelVariantMixin.class',
+        'mac/ilike2moveit/mixin/WolfCollarModelVariantMixin.class',
+        'mac/ilike2moveit/mixin/WolfArmorModelVariantMixin.class',
+        'mac/ilike2moveit/mixin/WolfRendererYawLockMixin.class',
+        'mac/ilike2moveit/wolf/WolfVariantCompat.class',
+        'mac/ilike2moveit/mixin/OcelotRendererModelVariantMixin.class',
+        'mac/ilike2moveit/mixin/RabbitRendererModelVariantMixin.class',
+        'mac/ilike2moveit/render/RendererModelSwapStack.class',
         'mac/ilike2moveit/MoveItCore.class',
         'mac/ilike2moveit/network/ServerBridgePayload.class',
         'mac/ilike2moveit/pig/PigRestingController.class',
@@ -36,8 +61,9 @@ def sharedEntries = [
 // Resolve paths HERE during configuration. The configuration cache enabled in gradle.properties
 // forbids calling `file(...)` from an execution closure ("invocation of 'file' references a Gradle
 // script object ... is unsupported"): doLast may only use pre-resolved Files, not the Project object.
-def libsDirs = jarMustContain.collectEntries { loader, ownEntries ->
-    [(loader): file("${loader}/build/libs")]
+def jarFiles = jarMustContain.collectEntries { loader, ownEntries ->
+    def archiveName = loader == 'fabric' ? 'iLike2MoveIt-fabric' : 'iLike2MoveIt'
+    [(loader): file("${loader}/build/libs/${archiveName}-${version}.jar")]
 }
 
 tasks.register('verifyJars') {
@@ -46,21 +72,40 @@ tasks.register('verifyJars') {
     dependsOn ':neoforge:build', ':fabric:build'
     doLast {
         jarMustContain.each { loader, ownEntries ->
-            def libs = libsDirs[loader]
-            // Each libs/ currently has one jar (Loom puts the -dev.jar in build/devlibs/), but enabling
-            // a sources or javadoc jar would add another one. This filter guarantees that verification
-            // inspects the publishable jar rather than one of its siblings.
-            def jar = libs.listFiles()?.find {
-                it.name.endsWith('.jar') && !it.name.contains('-sources') && !it.name.contains('-dev')
+            def jar = jarFiles[loader]
+            if (!jar.isFile()) {
+                throw new GradleException("No current-version jar found at ${jar}")
             }
-            if (jar == null) {
-                throw new GradleException("No jar found in ${libs}")
-            }
-            def names = new java.util.zip.ZipFile(jar).entries().collect { it.name } as Set
-            (ownEntries + sharedEntries).each { entry ->
-                if (!names.contains(entry)) {
-                    throw new GradleException("${jar.name} does not contain ${entry}")
+            def zip = new java.util.zip.ZipFile(jar)
+            try {
+                def names = zip.entries().collect { it.name } as Set
+                (ownEntries + sharedEntries).each { entry ->
+                    if (!names.contains(entry)) {
+                        throw new GradleException("${jar.name} does not contain ${entry}")
+                    }
                 }
+                def bundledMixins = new groovy.json.JsonSlurper().parse(
+                        zip.getInputStream(zip.getEntry('ilike2moveit.mixins.json')))
+                def mixinPackage = bundledMixins.package.replace('.', '/')
+                ((bundledMixins.mixins ?: []) + (bundledMixins.client ?: [])
+                        + (bundledMixins.server ?: [])).each { mixin ->
+                    def entry = "${mixinPackage}/${mixin}.class"
+                    if (!names.contains(entry.toString())) {
+                        throw new GradleException("${jar.name} configured mixin is missing: ${entry}")
+                    }
+                }
+                if (loader == 'fabric') {
+                    def mixinConfig = new groovy.json.JsonSlurper().parse(
+                            zip.getInputStream(zip.getEntry('ilike2moveit.mixins.json'))
+                    )
+                    if (mixinConfig.refmap != 'ilike2moveit.refmap.json') {
+                        throw new GradleException(
+                                "${jar.name} mixin config does not declare ilike2moveit.refmap.json"
+                        )
+                    }
+                }
+            } finally {
+                zip.close()
             }
             println "OK ${jar.name}: ${(ownEntries + sharedEntries).size()} required entries present"
         }

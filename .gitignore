@@ -5,3 +5,12 @@ run-fabric/
 .gradle/
 *.log
 .DS_Store
+# Private Python engineering tooling caches.
+__pycache__/
+*.py[cod]
+
+# Isolated server verification data; never source or public payload.
+run-server-audit/
+
+# Optional private diagnostic client.
+run-turn-probe/

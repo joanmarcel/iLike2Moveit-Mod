@@ -43,10 +43,10 @@ public abstract class VillagerProfessionLayerMixin<T extends LivingEntity & Vill
         method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",
         at = @At(
             value = "INVOKE",
-            // No owner: the invokestatic in the bytecode resolves the inherited static method with owner
-            // VillagerProfessionLayer (the subclass), not RenderLayer -> pinning the owner matches 0
-            // times. The full descriptor disambiguates just as well.
-            target = "renderColoredCutoutModel(Lnet/minecraft/client/model/EntityModel;Lnet/minecraft/resources/ResourceLocation;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;I)V",
+            // The constant-pool owner is VillagerProfessionLayer (the subclass), even though the
+            // static method is inherited from RenderLayer. Mixin AP requires the fully qualified
+            // owner so it can emit the runtime mapping into the Fabric refmap.
+            target = "Lnet/minecraft/client/renderer/entity/layers/VillagerProfessionLayer;renderColoredCutoutModel(Lnet/minecraft/client/model/EntityModel;Lnet/minecraft/resources/ResourceLocation;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;I)V",
             ordinal = 0,
             shift = At.Shift.AFTER
         )

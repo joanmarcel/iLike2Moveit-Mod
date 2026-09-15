@@ -7,6 +7,7 @@ import com.blackgear.vanillabackport.common.api.variant.VariantUtils;
 import com.blackgear.vanillabackport.common.level.entities.animal.PigVariant;
 import com.blackgear.vanillabackport.common.level.entities.animal.PigVariants;
 import mac.ilike2moveit.MoveItCore;
+import mac.ilike2moveit.config.MobModelConfig;
 import mac.ilike2moveit.pig.PigBiomeVariants;
 import mac.ilike2moveit.pig.PigVariantCompat;
 import net.minecraft.client.model.PigModel;
@@ -67,7 +68,13 @@ public abstract class PigVariantRendererMixin {
     private PigModel<Pig> ilike2moveit$coldPigletModel;
 
     @Unique
+    private PigModel<Pig> ilike2moveit$tinyPigletModel;
+
+    @Unique
     private boolean ilike2moveit$loggedPigModels;
+
+    @Unique
+    private boolean ilike2moveit$loggedTinyPigletTexture;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void ilike2moveit$bakePigVariantModels(EntityRendererProvider.Context context, CallbackInfo ci) {
@@ -84,6 +91,8 @@ public abstract class PigVariantRendererMixin {
             ilike2moveit$taigaPigModel = new PigModel<>(context.bakeLayer(PigVariantCompat.TAIGA_PIG_LAYER));
             ilike2moveit$warmPigletModel = new PigModel<>(context.bakeLayer(PigVariantCompat.WARM_PIGLET_LAYER));
             ilike2moveit$coldPigletModel = new PigModel<>(context.bakeLayer(PigVariantCompat.COLD_PIGLET_LAYER));
+            ilike2moveit$tinyPigletModel = new PigModel<>(
+                    context.bakeLayer(PigVariantCompat.TINY_TAKEOVER_PIGLET_LAYER));
         }
     }
 
@@ -99,6 +108,7 @@ public abstract class PigVariantRendererMixin {
                 || ilike2moveit$redcoatPigModel == null
                 || ilike2moveit$birchForestPigModel == null || ilike2moveit$savannaPigModel == null
                 || ilike2moveit$savannaSpottedPigModel == null || ilike2moveit$taigaPigModel == null
+                || ilike2moveit$tinyPigletModel == null
                 || !(entity instanceof Pig pig)) {
             return;
         }
@@ -109,6 +119,11 @@ public abstract class PigVariantRendererMixin {
                 case MR_PIGGY -> ilike2moveit$mrPiggyModel;
                 case REDCOAT -> ilike2moveit$redcoatPigModel;
             }));
+            return;
+        }
+        if (pig.isBaby()
+                && MobModelConfig.pigBabyModel() == MobModelConfig.PigBabyModel.TINY_TAKEOVER) {
+            cir.setReturnValue(Optional.of(ilike2moveit$tinyPigletModel));
             return;
         }
         Object variantData = VariantDataHolder.getHolder(pig).getVariantData().orElse(null);
@@ -172,7 +187,23 @@ public abstract class PigVariantRendererMixin {
             return;
         }
         Object variantData = VariantDataHolder.getHolder(pig).getVariantData().orElse(null);
-        if (!(variantData instanceof PigVariant variant)) {
+        PigVariant variant = variantData instanceof PigVariant pigVariant ? pigVariant : null;
+        if (pig.isBaby()
+                && MobModelConfig.pigBabyModel() == MobModelConfig.PigBabyModel.TINY_TAKEOVER) {
+            // Must win before VanillaBackport's generic baby fallback. The Tiny JEM is 32x32;
+            // routing it through biomeTexture() applies pig_baby.png (96x48) and corrupts every UV.
+            ResourceLocation tinyTexture = PigVariantCompat.tinyTexture(pig, variant);
+            cir.setReturnValue(Optional.of(tinyTexture));
+            if (!ilike2moveit$loggedTinyPigletTexture) {
+                ilike2moveit$loggedTinyPigletTexture = true;
+                MoveItCore.LOGGER.info(
+                        "[Pig Compat] Tiny piglet uses dedicated model and texture {} before Backport baby fallback.",
+                        tinyTexture
+                );
+            }
+            return;
+        }
+        if (variant == null) {
             return;
         }
         ResourceLocation biomeTexture = PigVariantCompat.biomeTexture(pig, variant);

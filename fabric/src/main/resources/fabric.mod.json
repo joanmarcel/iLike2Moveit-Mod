@@ -4,7 +4,9 @@
   "version": "${version}",
   "name": "iLike2MoveIt",
   "description": "Server-authoritative mob behavior plus the client bridge for the iLike2MoveIt resource pack.",
-  "authors": ["joanmarcel"],
+  "authors": [
+    "joanmarcel"
+  ],
   "contact": {
     "sources": "https://github.com/joanmarcel/iLike2Moveit-Mod"
   },
@@ -12,19 +14,25 @@
   "icon": "ilike2moveit.png",
   "environment": "*",
   "entrypoints": {
-    "main": ["mac.ilike2moveit.fabric.ILike2MoveItFabricCommon"],
-    "client": ["mac.ilike2moveit.fabric.ILike2MoveItFabric"]
+    "main": [
+      "mac.ilike2moveit.fabric.ILike2MoveItFabricCommon"
+    ],
+    "client": [
+      "mac.ilike2moveit.fabric.ILike2MoveItFabric"
+    ]
   },
-  "mixins": ["ilike2moveit.mixins.json"],
+  "mixins": [
+    "ilike2moveit.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.19.3",
     "fabric-api": "*",
     "minecraft": "1.21.1",
-    "java": ">=21"
+    "java": ">=21",
+    "vanillabackport": ">=1.1.7.10"
   },
   "suggests": {
     "entity_model_features": ">=3.2.4",
-    "entity_texture_features": ">=7.1",
-    "vanillabackport": ">=1.1.7.10"
+    "entity_texture_features": ">=7.1"
   }
 }

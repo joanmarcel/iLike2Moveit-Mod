@@ -183,7 +183,7 @@ public abstract class CrossedArmsItemLayerMixin<T extends LivingEntity, M extend
         if (ilike2moveit$debug) ilike2moveit$lastLog = ilike2moveit$now;
 
         // --- Path 1: native EMF locator (item as a real child of the animated arm, fluid). ---
-        PoseStack.Pose locator = EmfLocatorBridge.currentRightItemPose();
+        PoseStack.Pose locator = EmfLocatorBridge.currentRightItemPose(entity.getUUID());
 
         // Replace the trader layer only when its pack provides the held_item locator. Otherwise keep
         // vanilla rendering intact; the arm-tree fallback is reserved for trading villagers.

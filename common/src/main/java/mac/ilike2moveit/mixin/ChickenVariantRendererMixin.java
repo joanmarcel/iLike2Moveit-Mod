@@ -8,6 +8,7 @@ import com.blackgear.vanillabackport.common.level.entities.animal.ChickenVariant
 import com.blackgear.vanillabackport.common.level.entities.animal.ChickenVariants;
 import mac.ilike2moveit.MoveItCore;
 import mac.ilike2moveit.chicken.ChickenVariantCompat;
+import mac.ilike2moveit.config.MobModelConfig;
 import net.minecraft.client.model.ChickenModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -38,6 +39,9 @@ public abstract class ChickenVariantRendererMixin {
     private ChickenModel<Chicken> ilike2moveit$roosterModel;
 
     @Unique
+    private ChickenModel<Chicken> ilike2moveit$tinyTakeoverChickenModel;
+
+    @Unique
     private boolean ilike2moveit$loggedWarmSelection;
 
     @Unique
@@ -50,6 +54,9 @@ public abstract class ChickenVariantRendererMixin {
                     context.bakeLayer(ChickenVariantCompat.WARM_CHICKEN_LAYER)
             );
             ilike2moveit$roosterModel = new ChickenModel<>(context.bakeLayer(ModelLayers.CHICKEN));
+            ilike2moveit$tinyTakeoverChickenModel = new ChickenModel<>(
+                    context.bakeLayer(ChickenVariantCompat.TINY_TAKEOVER_CHICKEN_LAYER)
+            );
         }
     }
 
@@ -61,7 +68,15 @@ public abstract class ChickenVariantRendererMixin {
     private void ilike2moveit$selectDedicatedWarmModel(
             LivingEntity entity, CallbackInfoReturnable<Optional<?>> cir
     ) {
-        if (!(entity instanceof Chicken chicken) || chicken.isBaby()) {
+        if (!(entity instanceof Chicken chicken)) {
+            return;
+        }
+
+        if (chicken.isBaby()) {
+            if (ilike2moveit$tinyTakeoverChickenModel != null
+                    && MobModelConfig.chickenBabyModel() == MobModelConfig.ChickenBabyModel.TINY_TAKEOVER) {
+                cir.setReturnValue(Optional.of(ilike2moveit$tinyTakeoverChickenModel));
+            }
             return;
         }
 
@@ -101,6 +116,13 @@ public abstract class ChickenVariantRendererMixin {
     private void ilike2moveit$selectRoosterTexture(
             LivingEntity entity, CallbackInfoReturnable<Optional<ResourceLocation>> cir
     ) {
+        if ((Object) this instanceof ChickenVariantRenderer
+                && entity instanceof Chicken chicken
+                && chicken.isBaby()
+                && MobModelConfig.chickenBabyModel() == MobModelConfig.ChickenBabyModel.TINY_TAKEOVER) {
+            cir.setReturnValue(Optional.of(ChickenVariantCompat.TINY_TAKEOVER_CHICKEN_TEXTURE));
+            return;
+        }
         if ((Object) this instanceof ChickenVariantRenderer
                 && entity instanceof Chicken chicken
                 && ChickenVariantCompat.isRooster(chicken)) {

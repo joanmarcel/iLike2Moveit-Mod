@@ -9,6 +9,7 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Pig;
 import com.blackgear.vanillabackport.common.level.entities.animal.PigVariant;
+import com.blackgear.vanillabackport.common.level.entities.animal.PigVariants;
 
 import java.util.Locale;
 
@@ -57,6 +58,9 @@ public final class PigVariantCompat {
     public static final ModelLayerLocation COLD_PIGLET_LAYER = new ModelLayerLocation(
             ResourceLocation.fromNamespaceAndPath("minecraft", "cold_piglet"), "main"
     );
+    public static final ModelLayerLocation TINY_TAKEOVER_PIGLET_LAYER = new ModelLayerLocation(
+            ResourceLocation.fromNamespaceAndPath("minecraft", "tiny_takeover_pig"), "main"
+    );
 
     // Adult and named atlases are authored for the port's 64x64 rig and live next to their JEMs.
     public static final ResourceLocation WARM_PIG_TEXTURE = ResourceLocation.fromNamespaceAndPath(
@@ -95,6 +99,7 @@ public final class PigVariantCompat {
     public static final ResourceLocation COLD_PIGLET_TEXTURE = ResourceLocation.fromNamespaceAndPath(
             "minecraft", "optifine/cem/cold_pig_baby.png"
     );
+    private static final String TINY_TEXTURE_ROOT = "textures/entity/pig/tiny_takeover/";
 
     private PigVariantCompat() {
     }
@@ -162,6 +167,31 @@ public final class PigVariantCompat {
     public static boolean isSavannaSpotted(Pig pig) {
         int optifineId = (int) (pig.getUUID().getLeastSignificantBits() & 0x7fffffffL);
         return optifineId % 100 >= 100 - SAVANNA_SPOTTED_CHANCE_PERCENT;
+    }
+
+    /** Mirrors the stable 88/12 temperate split used by pig.properties. */
+    public static boolean isTemperateSpotted(Pig pig) {
+        return isSavannaSpotted(pig);
+    }
+
+    public static ResourceLocation tinyTexture(Pig pig, PigVariant variant) {
+        String file;
+        if (variant != null && PigBiomeVariants.isBirchForest(variant)) {
+            file = "tiny_birch.png";
+        } else if (variant != null && PigBiomeVariants.isSavanna(variant)) {
+            file = isSavannaSpotted(pig) ? "tiny_savanna_manchado.png" : "tiny_savanna.png";
+        } else if (variant != null && PigBiomeVariants.isTaiga(variant)) {
+            file = "tiny_taiga.png";
+        } else if (variant != null && com.blackgear.vanillabackport.common.api.variant.VariantUtils.matches(
+                PigVariants.REGISTRY, variant, PigVariants.WARM)) {
+            file = "tiny_warm.png";
+        } else if (variant != null && com.blackgear.vanillabackport.common.api.variant.VariantUtils.matches(
+                PigVariants.REGISTRY, variant, PigVariants.COLD)) {
+            file = "tiny_cold.png";
+        } else {
+            file = isTemperateSpotted(pig) ? "tiny_manchado.png" : "tiny_temperate.png";
+        }
+        return ResourceLocation.fromNamespaceAndPath("minecraft", TINY_TEXTURE_ROOT + file);
     }
 
     public static ResourceLocation biomeTexture(Pig pig, PigVariant variant) {

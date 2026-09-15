@@ -1,6 +1,7 @@
 package mac.ilike2moveit.mixin;
 
 import mac.ilike2moveit.emf.EmfAsmMathsGuard;
+import mac.ilike2moveit.sheep.SheepUndercoatCompat;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -29,5 +30,6 @@ public class EmfManagerResetMixin {
     @Inject(method = "resetInstance", at = @At("RETURN"), remap = false)
     private static void ilike2moveit$keepAsmMathsOff(CallbackInfo callbackInfo) {
         EmfAsmMathsGuard.enforce();
+        SheepUndercoatCompat.resetResourceDecision();
     }
 }

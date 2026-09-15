@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * top of it -> a REAL child of the animated bone, with no frame or phase lag.
  *
  * <p>If EMF is not active, or the fox does not expose the pose (because the model falls back to
- * vanilla/Fresh Animations, say), {@link EmfLocatorBridge#currentRightItemPose()} returns
+ * vanilla/Fresh Animations, say), {@link EmfLocatorBridge#currentRightItemPose(java.util.UUID)} returns
  * {@code null} and we leave the vanilla render untouched (zero regression).
  *
  * <p>On 1.21.1 the render pipeline is the classic one (10-arg render(...)); EntityRenderState arrived
@@ -133,7 +133,7 @@ public abstract class FoxHeldItemLayerMixin extends RenderLayer<Fox, FoxModel<Fo
         ItemStack stack = fox.getItemBySlot(EquipmentSlot.MAINHAND);
         if (stack.isEmpty()) return;
 
-        PoseStack.Pose locator = EmfLocatorBridge.currentRightItemPose();
+        PoseStack.Pose locator = EmfLocatorBridge.currentRightItemPose(fox.getUUID());
         // Temporary DEBUG: does the mixin draw (locator OK) or yield to vanilla (NULL)? What scale?
         ilike2moveit$reloadIfNeeded();
         long ilike2moveit$now = System.currentTimeMillis();

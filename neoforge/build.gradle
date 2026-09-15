@@ -243,8 +243,25 @@ tasks.register('pigRestingPolicyLab', JavaExec) {
     enableAssertions = true
 }
 
+tasks.register('rendererModelSwapStackLab', JavaExec) {
+    group = 'verification'
+    description = 'Checks no-op, nested and cross-species renderer model restoration.'
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'mac.ilike2moveit.render.RendererModelSwapStackLab'
+}
+
+tasks.register('renderedAttachmentCaptureScopeLab', JavaExec) {
+    group = 'verification'
+    description = 'Distinguishes attachment UUID, model root, variant and real-render pass.'
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'mac.ilike2moveit.render.RenderedAttachmentCaptureScopeLab'
+}
+
 tasks.named('check').configure {
-    dependsOn wolfReunionLab, pigRestingPolicyLab
+    dependsOn wolfReunionLab, pigRestingPolicyLab, rendererModelSwapStackLab,
+            renderedAttachmentCaptureScopeLab
 }
 
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.

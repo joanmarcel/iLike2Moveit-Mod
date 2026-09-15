@@ -109,3 +109,9 @@ same licence. The same terms as the resource pack.
 
 `TEMPLATE_LICENSE.txt` covers the Gradle wrapper and the NeoForge MDK scaffolding, which are MIT and
 belong to the NeoForged project.
+
+## Current release compatibility
+
+Core v0.2.1-beta.2 pairs with RP v1.1.2-beta.4 on Minecraft 1.21.1. VanillaBackport 1.1.7.10 or newer is required wherever Core is installed, including servers. Choose the JAR for your loader and remove the previous Core JAR. Tiny Takeover and Classic baby presentations are selectable; sheep supports Classic and Alternate.
+
+Core v0.2.1-beta.2 is currently published for NeoForge only; its Fabric download will follow separately.

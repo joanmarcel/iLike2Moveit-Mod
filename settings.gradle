@@ -20,3 +20,8 @@ plugins {
 // would require disabling its compilation because it has no Minecraft classes on its own classpath.
 include 'neoforge'
 include 'fabric'
+
+// Private diagnostic module; absent from the normal product build and public export.
+if (providers.gradleProperty('turnProbe').isPresent()) {
+    include 'turn-probe'
+}

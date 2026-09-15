@@ -17,8 +17,8 @@ public final class FabricWolfCommand {
 
     public static void register() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
-                dispatcher.register(ClientCommandManager.literal("ilike2moveitwolf_reunion_test")
+                dispatcher.register(ClientCommandManager.literal("il2m_wolf_reunion_test")
                         .executes(context -> WolfReunionTracker.queueDiagnosticReturn())));
-        MoveItCore.LOGGER.info("[Wolf Reunion] client command /ilike2moveitwolf_reunion_test registered.");
+        MoveItCore.LOGGER.info("[Wolf Reunion] client command /il2m_wolf_reunion_test registered.");
     }
 }

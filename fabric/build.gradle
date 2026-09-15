@@ -72,6 +72,14 @@ dependencies {
 }
 
 loom {
+    // Common contains the mixins, but Loom 1.15 leaves the legacy Mixin annotation processor off by
+    // default. Fabric still needs its generated refmap at runtime for descriptor-based injections
+    // such as VillagerProfessionLayerMixin. remapJar adds the matching `refmap` property to the
+    // mixin config only when this file actually exists in the input jar.
+    mixin {
+        useLegacyMixinAp.set(true)
+        defaultRefmapName.set('ilike2moveit.refmap.json')
+    }
     runs {
         client {
             // Relative to the subproject projectDir, resolving to <root>/run-fabric. It is intentionally
